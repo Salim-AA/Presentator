@@ -46,8 +46,6 @@ bedrock_embeddings = BedrockEmbeddings(model_id="amazon.titan-embed-text-v1", cl
 folder_path="/tmp/"
 
 
-#import next step
-from User.PresentOutput import next_step
 
 
 
@@ -135,9 +133,7 @@ def get_response(llm, vectorstore, question):
         return_source_documents=True,
         chain_type_kwargs={"prompt": PROMPT}
     )
-    response = qa({"query": question})
 
-    #return json.loads(response['result'])
     
     answer=qa({"query":question})
 

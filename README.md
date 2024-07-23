@@ -67,6 +67,12 @@ Create a .env to store :  AWS_ACCESS_KEY_ID // AWS_SECRET_ACCESS_KEY // BUCKET_N
 
 
 
+### Moving forwrd : 
+
+  Next step would be implementing a React element to the streamlit webapp to showcase the presentation as a standalone element. 
+  Adding the text that goes along with each slide
+  Implement a Lambda that takes over the task, making the project serverless
+
 
 
 
