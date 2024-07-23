@@ -1,0 +1,4 @@
+.env
+/presentator
+user/.env
+admin/.env
