@@ -1,6 +1,7 @@
 # Presentator - Generative AI Application
 ## Built Using Amazon Bedrock, Langchain, Python, Docker, Amazon S3
-## Models used:
+## Models used (Bedrock):
+    
     Amazon Titan Embedding G1 - Text
     anthropic.claude-3.5 sonnet
 
