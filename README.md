@@ -5,11 +5,30 @@
     anthropic.claude-3.5 sonnet
 
 ## Introduction
-In the light of my upcoming presentation for the end of my Masters degree, and as the end date of my internship is slowly creeping in. There was an obvious need to build an AI solution that will automate the tedious presentation making once your report is already ready. And what would be more presentable of a GenAI internship other than a GenAI app that ingests the final report, takes queries and direction, and outputs a presentation. The project will use : AWS Amazon Bedrock, docker, python, Langchain, and Streamlit. We will use Retrieval-Augmented generation concept to provide context to the Large Language model along with user query to generates a presentation based on the user's input (style, lenght, format...) and all information povided from our Knowledgebase.
+
+
+
+In the light of my upcoming presentation for the end of my Masters degree, and as the end date of my internship is slowly creeping in. There was an obvious need to build an AI solution that will automate the tedious presentation making once your report is already ready. And what would be more presentable of a GenAI internship other than a GenAI app that ingests the final report, takes queries and direction, and outputs a presentation, and the script for each one of those slides. The project will use : AWS Amazon Bedrock, docker, python, Langchain, and Streamlit. We will use Retrieval-Augmented generation concept to provide context to the Large Language model along with user query to generates a presentation based on the user's input (style, lenght, format...) and all information povided from our Knowledgebase.
+
+### Goal
+Develop an AI solution to automate the creation of presentations from completed reports, reducing preparation time and effort by generating structured slides and accompanying scripts.
+
+### Objective
+Build an application that:
+
+Ingests completed reports and processes user preferences.
+Uses Retrieval-Augmented Generation with AWS Amazon Bedrock and Langchain for contextual AI-driven content creation.
+Generates presentations and scripts based on user input, ensuring a cohesive and polished final product.
+
+
 
 In this project, let's handle the following:
 - Architecture of the applications
-- Build 2 applications (ADMIN and USER) and create DOCKER images
+- Build 2 applications (ADMIN and USER) and create DOCKER images 
+
+## Demo video
+
+[![Demo Video](Presentator_thumbnail.jpg)](https://github.com/user-attachments/assets/ff34f261-a2a1-4f5b-aa1b-2b5d66779d7e)
 
 
 ## Before getting started

@@ -3,9 +3,12 @@ import streamlit as st
 import os
 import uuid
 import json
+import re
+import json
 
 
-from User.PresentOutput import PresenterOutput
+
+from PresentOutput import PresenterOutput
 
 ## s3_client
 s3_client = boto3.client("s3")
@@ -81,8 +84,8 @@ def load_index():
 
 def get_llm():
     llm=BedrockChat(model_id="anthropic.claude-3-5-sonnet-20240620-v1:0", client=bedrock_client,
-                model_kwargs={    "max_tokens": 3048,
-    "temperature": 0.2})
+                model_kwargs={    "max_tokens": 2048,
+    "temperature": 0.3})
     return llm
 
 def get_response(llm, vectorstore, question):
@@ -93,11 +96,11 @@ def get_response(llm, vectorstore, question):
         aws_secret_access_key=aws_secret_access_key
     )
 
-
     prompt_template = """
     Human: You are an AI tasked with creating a presentation based on the given context. The presentation should be in the style and directions if given in: {question}.
-    Generate a JSON structure for a presentation with the number of slides specified by the User. Each slide should have a title and content. 
-    The content should be detailed. Line break between the bulletpoints.
+    Generate a JSON structure for a presentation with the number of slides specified by the User. Each slide should have a title, content, and a script. 
+    The content should be detailed and follow the logical order of the original document. 
+    
 
     <context>
     {context}
@@ -108,15 +111,14 @@ def get_response(llm, vectorstore, question):
       "slides": [
         {{
           "title": "Slide Title",
-          "content": " Small introductionary sentence to put in context related to the content of the slide, then At least 5 bullet points with all the relevent information to the Slide content goes here"
+          "content": " 5 bullet points with line breaks in between with all the relevant information to the Slide content goes here. Line break with <br> instead of "\n" in between the bullet points is necessary.",
+          "script": "Detailed script for presenting this slide, expanding on the bullet points and providing additional context."
         }},
         ...
       ]
     }}
 
     Assistant: Start your answer directly, without preambles or commentary, with the JSON structure.
-  
-
     """
 
     PROMPT = PromptTemplate(
@@ -134,11 +136,77 @@ def get_response(llm, vectorstore, question):
         chain_type_kwargs={"prompt": PROMPT}
     )
 
-    
-    answer=qa({"query":question})
+    answer = qa({"query": question})
 
-    #return answer
+
+
     return answer['result']
+
+def extract_slides(text):
+    # Pattern to match each slide
+    slide_pattern = r'\{\s*"title":\s*"(.+?)",\s*"content":\s*"(.+?)",\s*"script":\s*"(.+?)"\s*\}'
+    
+    # Find all matches
+    slides = re.findall(slide_pattern, text, re.DOTALL)
+    
+    # Convert matches to dictionaries
+    slide_dicts = [
+        {
+            "title": title.strip(),
+            "content": content.strip(),
+            "script": script.strip()
+        }
+        for title, content, script in slides
+    ]
+    
+    return {"slides": slide_dicts}
+
+def clean_json_string(json_string):
+    # Remove any leading or trailing whitespace
+    json_string = json_string.strip()
+    
+    # Ensure the string starts and ends with curly braces
+    if not json_string.startswith('{'):
+        json_string = '{' + json_string
+    if not json_string.endswith('}'):
+        json_string = json_string + '}'
+    
+    # Replace any single quotes with double quotes
+    json_string = json_string.replace("'", '"')
+    
+    # Remove any newline characters within string values
+    json_string = re.sub(r'(?<!\\)\\n', ' ', json_string)
+    
+    # Remove any unescaped newline characters
+    json_string = json_string.replace('\n', '')
+    
+    # Fix any unquoted keys
+    json_string = re.sub(r'(\w+)(?=\s*:)', r'"\1"', json_string)
+    
+    # Attempt to fix trailing commas
+    json_string = re.sub(r',\s*}', '}', json_string)
+    json_string = re.sub(r',\s*]', ']', json_string)
+    
+    return json_string
+
+def parse_json_safely(json_string):
+    try:
+        # First, try to parse the JSON as-is
+        return json.loads(json_string)
+    except json.JSONDecodeError as e:
+        st.write(f"Initial JSON parsing failed: {str(e)}")
+        st.write("Attempting to clean and parse JSON...")
+        
+        # If that fails, try to clean the JSON string
+        cleaned_json = clean_json_string(json_string)
+        try:
+            # Try to parse the cleaned JSON
+            return json.loads(cleaned_json)
+        except json.JSONDecodeError as e:
+            st.error(f"Error parsing cleaned JSON: {str(e)}")
+            st.text("Cleaned JSON:")
+            st.code(cleaned_json)
+            return None
 
 
 def process_pdf(uploaded_file):
@@ -177,39 +245,43 @@ def generate_presentation(faiss_index, question):
 
 
 def main():
-    st.write("This is The Presentator")
+    st.set_page_config(layout="wide")
+    col1, col2, _ = st.columns([1,2, 1])
+    
+    with col1:
+        pass
     
     if 'faiss_index' not in st.session_state:
         st.session_state.faiss_index = None
     
     if 'presentation_data' not in st.session_state:
         st.session_state.presentation_data = None
+    with col2:
+        st.write("This is The Presentator")
+        uploaded_file = st.file_uploader("Upload your report", "pdf")
 
-    uploaded_file = st.file_uploader("Upload your report", "pdf")
+        if uploaded_file is not None and st.session_state.faiss_index is None:
+            with st.spinner("Uploading and processing file..."):
+                st.session_state.faiss_index = process_pdf(uploaded_file)
 
-    if uploaded_file is not None and st.session_state.faiss_index is None:
-        with st.spinner("Uploading and processing file..."):
-            st.session_state.faiss_index = process_pdf(uploaded_file)
+        if st.session_state.faiss_index is not None:
+            question = st.text_input("Specify the style of your presentation and number of slides")
+            if st.button("Generate Presentation"):
+                
+                with st.spinner("Generating presentation..."):
+                    raw_presentation_data = generate_presentation(st.session_state.faiss_index, question)
+                    st.session_state.presentation_data = extract_slides(raw_presentation_data)
+                    
+                    if not st.session_state.presentation_data["slides"]:
+                        st.error("Failed to extract slide information")
+                        st.text("Raw data:")
+                        st.code(raw_presentation_data)
 
-    if st.session_state.faiss_index is not None:
-        question = st.text_input("Specify the style of your presentation and number of slides")
-        if st.button("Generate Presentation"):
-            with st.spinner("Generating presentation..."):
-                st.session_state.presentation_data = generate_presentation(st.session_state.faiss_index, question)
-                #st.success("Presentation generated successfully!")
-
-    if st.session_state.presentation_data is not None:
+    if st.session_state.presentation_data is not None and st.session_state.presentation_data["slides"]:
         PresenterOutput(st.session_state.presentation_data)
-
-
-
-  
 
 if __name__ == "__main__":
     main()
-
-
-
 
 
 
