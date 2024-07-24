@@ -1,10 +1,12 @@
 # Presentator - Generative AI Application
 ## Built Using Amazon Bedrock, Langchain, Python, Docker, Amazon S3
-## Models used:
+## Models used (Bedrock):
+    
     Amazon Titan Embedding G1 - Text
     anthropic.claude-3.5 sonnet
 
 ## Introduction
+<<<<<<< HEAD
 
 
 
@@ -21,6 +23,10 @@ Uses Retrieval-Augmented Generation with AWS Amazon Bedrock and Langchain for co
 Generates presentations and scripts based on user input, ensuring a cohesive and polished final product.
 
 
+=======
+In the light of my upcoming presentation for the end of my Masters degree, and with the end date of my internship is slowly creeping in. There was an obvious need to build an AI solution that will automate that last part of the process : The presentation. 
+What would be more fitting for a GenAI internship other than a GenAI app that ingests the final report, takes queries and direction, and outputs a presentation. The project will use : AWS Amazon Bedrock, docker, python, Langchain, and Streamlit. We will use Retrieval-Augmented generation concept to provide context to the Large Language model through a Langchain pipeline along with user query to generates a presentation based on the user's input (style, lenght, format...) and all information povided from our Knowledgebase.
+>>>>>>> bdeecce2ace985a881c914975bd8889c14c1df53
 
 In this project, let's handle the following:
 - Architecture of the applications
