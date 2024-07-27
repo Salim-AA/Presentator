@@ -1,4 +1,4 @@
-# Presentator - AI Presentation generator
+# Presentator - AI Presentation Generator
 ## Built Using Amazon Bedrock, Langchain, Python, Docker, Amazon S3
 ## Models used (Bedrock):
     
