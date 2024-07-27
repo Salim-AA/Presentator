@@ -33,7 +33,12 @@ In this project, let's handle the following:
 
 ## Demo video
 
+
+
 [![Demo Video](Presentator_thumbnail.jpg)](https://github.com/user-attachments/assets/ff34f261-a2a1-4f5b-aa1b-2b5d66779d7e)
+
+
+Side note : The document uploaded was in french, yet the results were amazing !!!
 
 
 ## Before getting started
